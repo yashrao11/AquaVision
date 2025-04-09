@@ -1,0 +1,11 @@
+# Model training script (run periodically)
+from xgboost import XGBRegressor
+import joblib
+import pandas as pd
+
+# Load preprocessed data
+data = pd.read_parquet("preprocessed_data.parquet")
+
+# Train model (customize with your actual training logic)
+model = XGBRegressor().fit(data[['Elevation', 'LATITUDE']], data['WSE'])
+joblib.dump(model, "pre_trained_xgb_model.py")
