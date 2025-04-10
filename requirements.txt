@@ -13,3 +13,4 @@ requests
 scipy
 PyPDF2
 streamlit-folium
+statsmodels
