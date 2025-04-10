@@ -501,31 +501,42 @@ class ModelMonitor:
         ))
         # Add similar traces for RMSE, R²
         return fig
+# ======================
+# AUTHENTICATION (FIXED)
+# ======================
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # Authentication form takes over entire screen
     with st.container():
         st.title("🔒 Groundwater Portal")
         col1, col2, col3 = st.columns([1,3,1])
         
         with col2:
+            # Use proper form submission
             with st.form("auth_form"):
                 st.markdown("### Authentication Required")
+                
                 try:
                     correct_key = st.secrets["authentication"]["ACCESS_KEY"]
+                except KeyError:
+                    st.error("❌ Missing authentication configuration")
+                    st.stop()
+                except FileNotFoundError:
+                    st.error("🔑 Secrets file not found")
+                    st.stop()
                 except Exception as e:
-                    st.error("System configuration error")
+                    st.error(f"System error: {str(e)}")
                     st.stop()
 
                 key_input = st.text_input("Enter access key:", 
-                                        type="password",
-                                        key="auth_key")
+                                         type="password",
+                                         key="auth_key")
                 
+                # Proper submit button
                 if st.form_submit_button("Authenticate", 
-                                        use_container_width=True,
-                                        type="primary"):
+                                       use_container_width=True,
+                                       type="primary"):
                     if key_input.strip() == correct_key.strip():
                         st.session_state.authenticated = True
                         st.rerun()
@@ -535,9 +546,7 @@ if not st.session_state.authenticated:
             st.markdown("---")
             st.caption("Contact admin for access credentials")
             
-    # Block all other content
     st.stop()
-
             
             # Critical 
 # ======================
