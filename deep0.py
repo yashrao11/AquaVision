@@ -501,31 +501,34 @@ class ModelMonitor:
         ))
         # Add similar traces for RMSE, R²
         return fig
+# In the authentication section (before main()):
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # Authentication form takes over entire screen
+    # Handle secrets error BEFORE creating form
+    try:
+        correct_key = st.secrets["authentication"]["ACCESS_KEY"]
+    except Exception as e:
+        st.error("System configuration error - Missing authentication credentials")
+        st.stop()
+
+    # Now create the form
     with st.container():
         st.title("🔒 Groundwater Portal")
-        col1, col2, col3 = st.columns([1,3,1])
+        col1, col2, col3 = st.columns([1, 3, 1])
         
         with col2:
             with st.form("auth_form"):
                 st.markdown("### Authentication Required")
-                try:
-                    correct_key = st.secrets["authentication"]["ACCESS_KEY"]
-                except Exception as e:
-                    st.error("System configuration error")
-                    st.stop()
-
                 key_input = st.text_input("Enter access key:", 
                                         type="password",
                                         key="auth_key")
                 
+                # Proper submit button handling
                 if st.form_submit_button("Authenticate", 
-                                        use_container_width=True,
-                                        type="primary"):
+                                       use_container_width=True,
+                                       type="primary"):
                     if key_input.strip() == correct_key.strip():
                         st.session_state.authenticated = True
                         st.rerun()
@@ -535,7 +538,7 @@ if not st.session_state.authenticated:
             st.markdown("---")
             st.caption("Contact admin for access credentials")
             
-    # Block all other content
+    # Stop execution if not authenticated
     st.stop()
 
             
