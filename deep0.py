@@ -505,7 +505,14 @@ if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    # Authentication form takes over entire screen
+    try:
+        # Load secrets from current directory
+        secrets = toml.load("secrets.toml")
+        correct_key = secrets["authentication"]["ACCESS_KEY"]
+    except Exception as e:
+        st.error(f"Configuration error: {str(e)}")
+        st.stop()
+
     with st.container():
         st.title("🔒 Groundwater Portal")
         col1, col2, col3 = st.columns([1,3,1])
@@ -513,12 +520,6 @@ if not st.session_state.authenticated:
         with col2:
             with st.form("auth_form"):
                 st.markdown("### Authentication Required")
-                try:
-                    correct_key = st.secrets["authentication"]["ACCESS_KEY"]
-                except Exception as e:
-                    st.error("System configuration error")
-                    st.stop()
-
                 key_input = st.text_input("Enter access key:", 
                                         type="password",
                                         key="auth_key")
@@ -535,9 +536,7 @@ if not st.session_state.authenticated:
             st.markdown("---")
             st.caption("Contact admin for access credentials")
             
-    # Block all other content
     st.stop()
-
             
             # Critical 
 # ======================
